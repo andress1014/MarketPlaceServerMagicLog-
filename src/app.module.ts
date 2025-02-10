@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config'; // ✅ Importamos ConfigModule
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './database/postgres.module';
+import { DatabaseModule } from './config/database/postgres.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductModule } from './modules/product/product.module'; // ✅ Importamos el módulo de productos

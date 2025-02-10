@@ -1,31 +1,54 @@
 import { Controller, Post, Get, Body, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from '../../models/user.model';
-import { AuthGuard } from '../../middleware/guard/auth.guard'; // 🔥 Importamos el guard de autenticación
+import { UserResponseDto } from './dto/user-response.dto'; // ✅ Importamos el DTO de respuesta
+import { AuthGuard } from '../../config/guard/auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.createUser(createUserDto);
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'User registered successfully', type: UserResponseDto }) // ✅ Cambiamos la respuesta esperada
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiBody({ type: CreateUserDto })
+  async register(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    const user = await this.userService.createUser(createUserDto);
+    
+    // ✅ Devolver solo los campos necesarios (sin contraseña)
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roleId: user.roleId,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString()
+    };
   }
 
-  @Get()
-  async findAll(): Promise<User[]> {
-    return this.userService.findAll();
-  }
 
-  // 🔥 Nuevo endpoint para listar solo vendedores, protegido con JWT y solo accesible por admins
   @Get('sellers')
-  @UseGuards(AuthGuard) // 🔒 Protegemos con JWT
-  async findSellers(@Request() req: any): Promise<User[]> {
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all sellers (Admins only)' })
+  @ApiResponse({ status: 200, type: [UserResponseDto] }) // ✅ Cambiamos la respuesta esperada
+  @ApiResponse({ status: 403, description: 'Forbidden - Only admins can access this route' })
+  async findSellers(@Request() req: any): Promise<UserResponseDto[]> {
     if (req.user.roleId !== 1) {
       throw new ForbiddenException('Only admins can access this route.');
     }
 
-    return this.userService.findSellers();
+    const sellers = await this.userService.findSellers();
+    return sellers.map(seller => ({
+      id: seller.id,
+      username: seller.username,
+      email: seller.email,
+      roleId: seller.roleId,
+      createdAt: seller.createdAt.toISOString(),
+      updatedAt: seller.updatedAt.toISOString()
+    }));
   }
 }

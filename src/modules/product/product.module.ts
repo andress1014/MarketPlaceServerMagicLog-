@@ -5,7 +5,7 @@ import { ProductService } from './product.service';
 import { Product } from '../../models/product.model';
 import { Category } from '../../models/category.model';
 import { ValidateProductMiddleware } from '../../middleware/validations/validate-product.middleware';
-import { AuthGuard } from '../../middleware/guard/auth.guard';
+import { AuthGuard } from '../../config/guard/auth.guard';
 
 @Module({
   imports: [SequelizeModule.forFeature([Product, Category])], // 🔥 Agregamos Category

@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware, UnauthorizedException, ForbiddenException }
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { User } from '../../models/user.model';
+const { JWT_SECRET }:any = process.env;
 
 // Definimos una interfaz extendida para Request
 interface CustomRequest extends Request {
@@ -17,11 +18,6 @@ export class AuthProductMiddleware implements NestMiddleware {
     }
 
     const token = authHeader.split(' ')[1]; // Extrae el token después de "Bearer"
-    const JWT_SECRET = process.env.JWT_SECRET;
-    
-    if (!JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined in environment variables.');
-    }
 
     try {
       const decoded: any = jwt.verify(token, JWT_SECRET); // Verifica el token

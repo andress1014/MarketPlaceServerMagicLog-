@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { Request } from 'express';
+const { JWT_SECRET } = process.env;
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -13,7 +14,6 @@ export class AuthGuard implements CanActivate {
     }
 
     const token = authHeader.split(' ')[1];
-    const JWT_SECRET = process.env.JWT_SECRET;
 
     if (!JWT_SECRET) {
       throw new UnauthorizedException('JWT_SECRET is not defined.');
