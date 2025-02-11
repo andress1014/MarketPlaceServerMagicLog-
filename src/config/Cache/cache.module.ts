@@ -1,7 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import Redis from 'ioredis';
 
-const { REDIS_HOST, REDIS_PORT, REDIS_TLS_CONFIG } = process.env;
+const { REDIS_HOST, REDIS_PORT, REDIS_TLS_CONFIG, REDIS_USERNAME, REDIS_PASSWORD } = process.env;
 
 /**
  * Configure Redis connection
@@ -11,6 +11,8 @@ const { REDIS_HOST, REDIS_PORT, REDIS_TLS_CONFIG } = process.env;
 const redisClient = new Redis({
   host: String(REDIS_HOST),
   port: Number(REDIS_PORT),
+  username: REDIS_USERNAME,
+  password: REDIS_PASSWORD,
   tls:  REDIS_TLS_CONFIG === 'true'
       ? { rejectUnauthorized: false }
       : undefined,
