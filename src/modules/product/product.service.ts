@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Product } from '../../models/product.model';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Category } from '../../models/category.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ProductService {
@@ -27,24 +28,28 @@ export class ProductService {
     createProductDto: CreateProductDto,
     userId: number,
   ): Promise<Product> {
-    const { categoryId } = createProductDto;
+    const { categoryId, name } = createProductDto;
 
     const category = await this.categoryModel.findByPk(categoryId);
     if (!category) {
       throw new NotFoundException(`Category with ID ${categoryId} not found.`);
     }
 
+    let sku = `${name}-${uuidv4()}`;
+
+    let existingProduct = await this.productModel.findOne({ where: { sku } });
+    while (existingProduct) {
+      sku = `${name}-${uuidv4()}`;
+      existingProduct = await this.productModel.findOne({ where: { sku } });
+    }
+
     try {
       return await this.productModel.create({
         ...createProductDto,
         userId,
+        sku,
       } as Product);
     } catch (error) {
-      if (error.name === 'SequelizeUniqueConstraintError') {
-        throw new ConflictException(
-          'SKU already exists. Please use a different SKU.',
-        );
-      }
       throw new InternalServerErrorException(
         'An error occurred while creating the product.',
       );

@@ -7,7 +7,6 @@ export class ValidateProductMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     await Promise.all([
       body('name').isString().notEmpty().withMessage('Invalid "name". It must be a non-empty string.').run(req),
-      body('sku').isString().notEmpty().withMessage('Invalid "sku". It must be a non-empty string.').run(req),
       body('quantity')
         .isInt({ min: 0 })
         .withMessage('Invalid "quantity". It must be a positive integer.')

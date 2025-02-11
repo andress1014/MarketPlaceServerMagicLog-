@@ -14,9 +14,6 @@ export class CreateProductDto {
     description: 'The SKU of the product',
     example: 'SKU123456',
   })
-  @IsString()
-  @IsNotEmpty()
-  sku: string;
 
   @ApiProperty({
     description: 'The quantity of the product',
