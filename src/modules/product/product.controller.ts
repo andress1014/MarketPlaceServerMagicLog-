@@ -54,16 +54,8 @@ export class ProductController {
       );
       const response = this.mapToProductResponseDto(product);
 
-      await redisClient.del(String(REDIS_KEY_PRODUCT));
-
-      const products = await this.productService.findAvailableProducts();
-      const updatedProducts = products.map(this.mapToProductResponseDto);
-
-      await redisClient.setex(
-        String(REDIS_KEY_PRODUCT),
-        Number(REDIS_TTL),
-        JSON.stringify(updatedProducts),
-      );
+      // Actualizar la caché de Redis
+      await this.updateRedisCache();
 
       return response;
     } catch (error) {
@@ -192,6 +184,10 @@ export class ProductController {
         req.user.id,
         req.user.roleId,
       );
+
+      // Actualizar la caché de Redis
+      await this.updateRedisCache();
+
       return this.mapToProductResponseDto(product);
     } catch (error) {
       console.error(`❌ Error updating product ID ${id}:`, error);
@@ -212,11 +208,16 @@ export class ProductController {
     @Request() req: any,
   ): Promise<{ message: string }> {
     try {
-      return this.productService.deleteProduct(
+      const result = await this.productService.deleteProduct(
         id,
         req.user.id,
         req.user.roleId,
       );
+
+      // Actualizar la caché de Redis
+      await this.updateRedisCache();
+
+      return result;
     } catch (error) {
       console.error(`❌ Error deleting product ID ${id}:`, error);
       throw new InternalServerErrorException(`Error deleting product ID ${id}`);
@@ -248,5 +249,26 @@ export class ProductController {
       createdAt: product.createdAt?.toISOString(),
       updatedAt: product.updatedAt?.toISOString(),
     };
+  }
+
+  // Función privada para actualizar la caché de Redis
+  private async updateRedisCache(): Promise<void> {
+    try {
+      // Eliminar la caché existente
+      await redisClient.del(String(REDIS_KEY_PRODUCT));
+
+      // Obtener y actualizar la caché con los productos disponibles
+      const products = await this.productService.findAvailableProducts();
+      const updatedProducts = products.map(this.mapToProductResponseDto);
+
+      await redisClient.setex(
+        String(REDIS_KEY_PRODUCT),
+        Number(REDIS_TTL),
+        JSON.stringify(updatedProducts),
+      );
+    } catch (error) {
+      console.error('❌ Error updating Redis cache:', error);
+      throw new InternalServerErrorException('Error updating Redis cache');
+    }
   }
 }
