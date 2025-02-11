@@ -29,20 +29,28 @@ export class ProductService {
     userId: number,
   ): Promise<Product> {
     const { categoryId, name } = createProductDto;
-
+  
     const category = await this.categoryModel.findByPk(categoryId);
     if (!category) {
       throw new NotFoundException(`Category with ID ${categoryId} not found.`);
     }
-
-    let sku = `${name}-${uuidv4()}`;
-
+  
+    // 🔥 Generar un SKU corto basado en el nombre y un identificador numérico
+    const generateSku = (productName: string): string => {
+      const namePart = productName.replace(/\s+/g, '').slice(0, 4).toUpperCase(); // Primeros 4 caracteres del nombre sin espacios
+      const randomPart = Math.floor(1000 + Math.random() * 9000); // Número aleatorio de 4 dígitos
+      return `${namePart}${randomPart}`.slice(0, 8); // Asegurar que no pase de 8 caracteres
+    };
+  
+    let sku = generateSku(name);
+  
+    // 🔄 Verificar si el SKU ya existe
     let existingProduct = await this.productModel.findOne({ where: { sku } });
     while (existingProduct) {
-      sku = `${name}-${uuidv4()}`;
+      sku = generateSku(name);
       existingProduct = await this.productModel.findOne({ where: { sku } });
     }
-
+  
     try {
       return await this.productModel.create({
         ...createProductDto,
@@ -55,6 +63,7 @@ export class ProductService {
       );
     }
   }
+  
 
   /**
    * @returns Product[]
