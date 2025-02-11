@@ -9,10 +9,11 @@ async function bootstrap() {
 
   // Configurar CORS
   app.enableCors({
-    origin: FRONTEND_URL,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: '*', // Permitir todas las solicitudes temporalmente
+    methods: '*', // Permitir todos los métodos
     credentials: true,
   });
+  
 
   // 📌 Configuración de Swagger
   const config = new DocumentBuilder()

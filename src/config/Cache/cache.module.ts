@@ -11,7 +11,6 @@ const { REDIS_HOST, REDIS_PORT, REDIS_TLS_CONFIG, REDIS_USERNAME, REDIS_PASSWORD
 const redisClient = new Redis({
   host: String(REDIS_HOST),
   port: Number(REDIS_PORT),
-  username: REDIS_USERNAME,
   password: REDIS_PASSWORD,
   tls:  REDIS_TLS_CONFIG === 'true'
       ? { rejectUnauthorized: false }
