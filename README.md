@@ -1,6 +1,6 @@
 # MagicLog Marketplace
 
-MagicLog Marketplace es una aplicación diseñada para la gestión de productos y vendedores. Incluye una API desarrollada en Node.js con NestJS y una interfaz en Vue.js.
+MagicLog Marketplace es una aplicación diseñada para la gestión de productos y vendedores. Incluye una API desarrollada en Node.js con NestJS y una interfaz en React.js.
 
 ## Requisitos Previos
 
