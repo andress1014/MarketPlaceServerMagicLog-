@@ -54,13 +54,7 @@ REDIS_TTL=1000
 
 3. Asegúrate de que PostgreSQL y Redis estén corriendo.
 
-4. Ejecuta las migraciones de la base de datos:
-
-  ```sh
-  npm run migration:run
-  ```
-
-5. Inicia el servidor en modo desarrollo:
+4. Inicia el servidor en modo desarrollo:
 
   ```sh
   npm run start:dev
